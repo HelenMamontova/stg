@@ -72,7 +72,13 @@ std::vector<Data> Config::ParseRules(const std::string& value, const std::string
         }
 
         const std::string attrName = keyValue[0];
-        const uint32_t attrCode = m_dictionaries.attributeCode(attrName);
+        uint32_t attrCode;
+
+        if (m_dictionaries.attributeFindByName(attrName))
+            attrCode = m_dictionaries.attributeCode(attrName);
+        else
+            return {};
+
         const auto attrType = m_dictionaries.attributeType(attrCode);
 
         res.push_back({attrName, attrCode, attrType, {valueName, type}});
