@@ -9,6 +9,7 @@
 #include <iterator>
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
 using STG::Config;
 using AttrValue = Config::AttrValue;
@@ -43,45 +44,53 @@ std::vector<Data> Config::ParseRules(const std::string& value, const std::string
 
     std::vector<Data> res;
 
-    for (const auto& token : tokens)
+    try
     {
-        std::vector<std::string> keyValue;
-
-        split(keyValue, boost::algorithm::trim_copy_if(token, boost::is_any_of(" \t")), boost::is_any_of(" ="), boost::token_compress_on);
-
-        if (keyValue.size() != 2)
+        for (const auto& token : tokens)
         {
-            m_logger("The '%s' attribute specification has an incorrect format: '%s'.", paramName.c_str(),  token.c_str());
-            printfd(__FILE__, "The '%s' attribute specification has an incorrect format: '%s'.", paramName.c_str(), token.c_str());
-            return {};
+            std::vector<std::string> keyValue;
+
+            split(keyValue, boost::algorithm::trim_copy_if(token, boost::is_any_of(" \t")), boost::is_any_of(" ="), boost::token_compress_on);
+
+            if (keyValue.size() != 2)
+            {
+                m_logger("The '%s' attribute specification has an incorrect format: '%s'.", paramName.c_str(),  token.c_str());
+                printfd(__FILE__, "The '%s' attribute specification has an incorrect format: '%s'.", paramName.c_str(), token.c_str());
+                return {};
+            }
+
+            auto type = AttrValue::Type::PARAM_NAME;
+            std::string valueName = keyValue[1];
+
+            if (valueName.front() == '\'' && valueName.back() == '\'')
+            {
+                type = AttrValue::Type::VALUE;
+                valueName.erase(0, 1);
+                valueName.erase(valueName.length() - 1, 1);
+            }
+            else if ((valueName.front() == '\'' && valueName.back() != '\'') || (valueName.front() != '\'' && valueName.back() == '\''))
+            {
+                m_logger("Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
+                printfd(__FILE__, "Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
+                return {};
+            }
+
+            const std::string attrName = keyValue[0];
+            uint32_t attrCode;
+
+            if (m_dictionaries.attributeFindByName(attrName))
+                attrCode = m_dictionaries.attributeCode(attrName);
+            else
+                return {};
+
+            const auto attrType = m_dictionaries.attributeType(attrCode);
+
+            res.push_back({attrName, attrCode, attrType, {valueName, type}});
         }
-
-        auto type = AttrValue::Type::PARAM_NAME;
-        std::string valueName = keyValue[1];
-        if (valueName.front() == '\'' && valueName.back() == '\'')
-        {
-            type = AttrValue::Type::VALUE;
-            valueName.erase(0, 1);
-            valueName.erase(valueName.length() - 1, 1);
-        }
-        else if ((valueName.front() == '\'' && valueName.back() != '\'') || (valueName.front() != '\'' && valueName.back() == '\''))
-        {
-            m_logger("Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
-            printfd(__FILE__, "Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
-            return {};
-        }
-
-        const std::string attrName = keyValue[0];
-        uint32_t attrCode;
-
-        if (m_dictionaries.attributeFindByName(attrName))
-            attrCode = m_dictionaries.attributeCode(attrName);
-        else
-            return {};
-
-        const auto attrType = m_dictionaries.attributeType(attrCode);
-
-        res.push_back({attrName, attrCode, attrType, {valueName, type}});
+    }
+    catch (const std::exception& e)
+    {
+        printfd(__FILE__, "Error ParseRules: incorrect parameter value. Exception: '%s'\n", e.what());
     }
     return res;
 }
@@ -89,14 +98,20 @@ std::vector<Data> Config::ParseRules(const std::string& value, const std::string
 ASection Config::parseASection(const std::vector<ParamValue>& conf)
 {
     ASection res;
-    const auto mit = std::find(conf.begin(), conf.end(), ParamValue("match", {}));
-    if (mit != conf.end())
-        res.match = ParseRules(mit->value[0], mit->param);
+    try
+    {
+        const auto mit = std::find(conf.begin(), conf.end(), ParamValue("match", {}));
+        if (mit != conf.end())
+            res.match = ParseRules(mit->value.at(0), mit->param);
 
-    const auto sit = std::find(conf.begin(), conf.end(), ParamValue("send", {}));
-    if (sit != conf.end())
-        res.send = ParseRules(sit->value[0], sit->param);
-
+        const auto sit = std::find(conf.begin(), conf.end(), ParamValue("send", {}));
+        if (sit != conf.end())
+            res.send = ParseRules(sit->value.at(0), sit->param);
+    }
+    catch(const std::out_of_range& e)
+    {
+        printfd(__FILE__, "Error ParseASection: the first parameter of the function ParseRules call is invalid. Exception: '%s'\n", e.what());
+    }
     return res;
 }
 
