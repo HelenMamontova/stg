@@ -154,7 +154,7 @@ int Config::ParseSettings(const ModuleSettings & s)
     pv.param = "Dictionaries";
     pvi = std::find(s.moduleParams.begin(), s.moduleParams.end(), pv);
     if (pvi != s.moduleParams.end() && !pvi->value.empty())
-        m_dictionariesPath = pvi->value[0];
+        m_dictionaries = pvi->value[0];
 
     const auto authIt = std::find(s.moduleParams.begin(), s.moduleParams.end(), ParamValue("auth", {}));
     if (authIt != s.moduleParams.end())
