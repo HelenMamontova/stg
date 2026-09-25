@@ -81,7 +81,11 @@ std::vector<Data> Config::ParseRules(const std::string& value, const std::string
             if (m_dictionaries.attributeFindByName(attrName))
                 attrCode = m_dictionaries.attributeCode(attrName);
             else
+            {
+                m_logger("Error ParseRules: '%s' attribute name is invalid.\n", attrName.c_str());
+                printfd(__FILE__, "Error ParseRules: '%s' attribute name is invalid.\n", attrName.c_str());
                 return {};
+            }
 
             const auto attrType = m_dictionaries.attributeType(attrCode);
 
