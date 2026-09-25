@@ -94,7 +94,7 @@ std::vector<Data> Config::ParseRules(const std::string& value, const std::string
     }
     catch (const std::exception& e)
     {
-        printfd(__FILE__, "Error ParseRules: incorrect parameter value. Exception: '%s'\n", e.what());
+        printfd(__FILE__, "Error in ParseRules. '%s'\n", e.what());
     }
     return res;
 }
