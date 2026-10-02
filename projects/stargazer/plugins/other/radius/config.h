@@ -58,6 +58,7 @@ namespace STG
 
             std::string m_errorStr;
             uint16_t m_port;
+            std::string m_expectedPath;
             std::string m_dictionariesPath;
             std::string m_secret;
             RadProto::Dictionaries m_dictionaries;
