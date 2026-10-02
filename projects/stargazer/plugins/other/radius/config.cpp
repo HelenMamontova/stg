@@ -170,16 +170,16 @@ int Config::ParseSettings(const ModuleSettings & s)
 
     if (pvi != s.moduleParams.end() && !pvi->value.empty())
     {
-        m_expectedPath = pvi->value[0];
+        const std::string expectedPath = pvi->value[0];
 
-        if (m_expectedPath != m_dictionariesPath)
+        if (expectedPath != m_dictionariesPath)
         {
             m_errorStr = "Parameter \'Dictionaries\' is invalid.";
             printfd(__FILE__, "Parameter 'Dictionaries' is invalid\n");
             return -1;
         }
 
-        m_dictionaries = RadProto::Dictionaries(m_expectedPath);
+        m_dictionaries = RadProto::Dictionaries(expectedPath);
     }
 
     const auto authIt = std::find(s.moduleParams.begin(), s.moduleParams.end(), ParamValue("auth", {}));
