@@ -102,19 +102,29 @@ std::vector<Data> Config::ParseRules(const std::string& value, const std::string
 ASection Config::parseASection(const std::vector<ParamValue>& conf)
 {
     ASection res;
-    try
-    {
-        const auto mit = std::find(conf.begin(), conf.end(), ParamValue("match", {}));
-        if (mit != conf.end())
-            res.match = ParseRules(mit->value.at(0), mit->param);
+    const auto mit = std::find(conf.begin(), conf.end(), ParamValue("match", {}));
 
-        const auto sit = std::find(conf.begin(), conf.end(), ParamValue("send", {}));
-        if (sit != conf.end())
-            res.send = ParseRules(sit->value.at(0), sit->param);
-    }
-    catch(const std::out_of_range& e)
+    if (mit != conf.end())
     {
-        printfd(__FILE__, "Error ParseASection: the first parameter of the function ParseRules call is invalid. Exception: '%s'\n", e.what());
+        if (!mit->value.empty())
+            res.match = ParseRules(mit->value.at(0), mit->param);
+        else
+        {
+            m_errorStr = "Parameter match is empty";
+            printfd(__FILE__, "Parameter match is empty\n");
+            return {};
+        }
+    }
+
+    const auto sit = std::find(conf.begin(), conf.end(), ParamValue("send", {}));
+
+    if (sit != conf.end())
+    {
+        if (!sit->value.empty())
+            res.send = ParseRules(sit->value.at(0), sit->param);
+        else
+            if (res.match.empty())
+                return {};
     }
     return res;
 }
@@ -157,16 +167,38 @@ int Config::ParseSettings(const ModuleSettings & s)
 
     pv.param = "Dictionaries";
     pvi = std::find(s.moduleParams.begin(), s.moduleParams.end(), pv);
+
     if (pvi != s.moduleParams.end() && !pvi->value.empty())
-        m_dictionaries = pvi->value[0];
+    {
+        m_expectedPath = pvi->value[0];
+
+        if (m_expectedPath != m_dictionariesPath)
+        {
+            m_errorStr = "Parameter \'Dictionaries\' is invalid.";
+            printfd(__FILE__, "Parameter 'Dictionaries' is invalid\n");
+            return -1;
+        }
+
+        m_dictionaries = RadProto::Dictionaries(m_expectedPath);
+    }
 
     const auto authIt = std::find(s.moduleParams.begin(), s.moduleParams.end(), ParamValue("auth", {}));
     if (authIt != s.moduleParams.end())
+    {
         m_auth = parseASection(authIt->sections);
+
+        if (m_auth.match.empty())
+            return -1;
+    }
 
     const auto autzIt = std::find(s.moduleParams.begin(), s.moduleParams.end(), ParamValue("autz", {}));
     if (autzIt != s.moduleParams.end())
+    {
         m_autz = parseASection(autzIt->sections);
+
+        if (m_autz.match.empty())
+            return -1;
+    }
 
     printfd(__FILE__, " auth.match = \"%s\"\n", ShowRules(m_auth.match).c_str());
     printfd(__FILE__, " auth.send = \"%s\"\n", ShowRules(m_auth.send).c_str());
