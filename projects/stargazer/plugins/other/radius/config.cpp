@@ -123,8 +123,7 @@ ASection Config::parseASection(const std::vector<ParamValue>& conf)
         if (!sit->value.empty())
             res.send = ParseRules(sit->value.at(0), sit->param);
         else
-            if (res.match.empty())
-                return {};
+            return res;
     }
     return res;
 }
