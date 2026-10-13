@@ -131,7 +131,6 @@ ASection Config::parseASection(const std::vector<ParamValue>& conf)
 Config::Config()
     : m_port(1812),
       m_dictionariesPath("/usr/share/freeradius/dictionary"),
-      m_dictionaries(m_dictionariesPath),
       m_logger(PluginLogger::get("radius"))
 {}
 
@@ -171,14 +170,30 @@ int Config::ParseSettings(const ModuleSettings & s)
     {
         const std::string expectedPath = pvi->value[0];
 
-        if (expectedPath != m_dictionariesPath)
+        try
         {
-            m_errorStr = "Parameter \'Dictionaries\' is invalid.";
-            printfd(__FILE__, "Parameter 'Dictionaries' is invalid\n");
+            m_dictionaries = RadProto::Dictionaries(expectedPath);
+        }
+        catch (const std::runtime_error& e)
+        {
+            m_errorStr = "Cannot open dictionary file. " + std::string(e.what());
+            printfd(__FILE__, "Cannot open dictionary file. '%s'\n", e.what());
             return -1;
         }
-
-        m_dictionaries = RadProto::Dictionaries(expectedPath);
+        m_dictionariesPath = expectedPath;
+    }
+    else
+    {
+        try
+        {
+            m_dictionaries = RadProto::Dictionaries(m_dictionariesPath);
+        }
+        catch (const std::runtime_error& e)
+        {
+            m_errorStr = "Cannot open dictionary file. " + std::string(e.what());
+            printfd(__FILE__, "Cannot open dictionary file. '%s'\n", e.what());
+            return -1;
+        }
     }
 
     const auto authIt = std::find(s.moduleParams.begin(), s.moduleParams.end(), ParamValue("auth", {}));
