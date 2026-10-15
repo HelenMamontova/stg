@@ -168,11 +168,11 @@ int Config::ParseSettings(const ModuleSettings & s)
 
     if (pvi != s.moduleParams.end() && !pvi->value.empty())
     {
-        const std::string expectedPath = pvi->value[0];
+        m_dictionariesPath = pvi->value[0];
 
         try
         {
-            m_dictionaries = RadProto::Dictionaries(expectedPath);
+            m_dictionaries = RadProto::Dictionaries(m_dictionariesPath);
         }
         catch (const std::runtime_error& e)
         {
@@ -180,7 +180,6 @@ int Config::ParseSettings(const ModuleSettings & s)
             printfd(__FILE__, "Cannot open dictionary file. '%s'\n", e.what());
             return -1;
         }
-        m_dictionariesPath = expectedPath;
     }
     else
     {
