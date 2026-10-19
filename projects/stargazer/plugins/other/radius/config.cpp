@@ -167,32 +167,17 @@ int Config::ParseSettings(const ModuleSettings & s)
     pvi = std::find(s.moduleParams.begin(), s.moduleParams.end(), pv);
 
     if (pvi != s.moduleParams.end() && !pvi->value.empty())
-    {
         m_dictionariesPath = pvi->value[0];
 
-        try
-        {
-            m_dictionaries = RadProto::Dictionaries(m_dictionariesPath);
-        }
-        catch (const std::runtime_error& e)
-        {
-            m_errorStr = "Cannot open dictionary file. " + std::string(e.what());
-            printfd(__FILE__, "Cannot open dictionary file. '%s'\n", e.what());
-            return -1;
-        }
-    }
-    else
+    try
     {
-        try
-        {
-            m_dictionaries = RadProto::Dictionaries(m_dictionariesPath);
-        }
-        catch (const std::runtime_error& e)
-        {
-            m_errorStr = "Cannot open dictionary file. " + std::string(e.what());
-            printfd(__FILE__, "Cannot open dictionary file. '%s'\n", e.what());
-            return -1;
-        }
+        m_dictionaries = RadProto::Dictionaries(m_dictionariesPath);
+    }
+    catch (const std::runtime_error& e)
+    {
+        m_errorStr = "Cannot open dictionary file. " + std::string(e.what());
+        printfd(__FILE__, "Cannot open dictionary file. '%s'\n", e.what());
+        return -1;
     }
 
     const auto authIt = std::find(s.moduleParams.begin(), s.moduleParams.end(), ParamValue("auth", {}));
