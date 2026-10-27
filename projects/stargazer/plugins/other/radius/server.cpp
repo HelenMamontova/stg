@@ -132,6 +132,9 @@ const User* Server::findUser(const RadProto::Packet& packet)
 
     std::vector<DataForCompare> valuesForCompare;
 
+    if (m_config.getAuth().match.size() == 0)
+        return nullptr;
+
     for (const auto& at : m_config.getAuth().match)
     {
         const std::string attrName = at.attrName;
