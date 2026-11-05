@@ -62,17 +62,29 @@ std::vector<Data> Config::ParseRules(const std::string& value, const std::string
             auto type = AttrValue::Type::PARAM_NAME;
             std::string valueName = keyValue[1];
 
-            if (valueName.front() == '\'' && valueName.back() == '\'')
+            size_t pos = valueName.find("\'");
+            if (pos != std::string::npos)
             {
-                type = AttrValue::Type::VALUE;
-                valueName.erase(0, 1);
-                valueName.erase(valueName.length() - 1, 1);
-            }
-            else if ((valueName.front() == '\'' && valueName.back() != '\'') || (valueName.front() != '\'' && valueName.back() == '\''))
-            {
-                m_logger("Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
-                printfd(__FILE__, "Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
-                return {};
+                pos = valueName.find("\'", pos + 2);
+                if (pos == std::string::npos)
+                {
+                    m_logger("Error ParseRules: '%s' attribute value name is invalid.\n", valueName.c_str());
+                    printfd(__FILE__, "Error ParseRules: '%s' attribute value name is invalid.\n", valueName.c_str());
+                    return {};
+                }
+
+                if (valueName.front() == '\'' && valueName.back() == '\'')
+                {
+                    type = AttrValue::Type::VALUE;
+                    valueName.erase(0, 1);
+                    valueName.erase(valueName.length() - 1, 1);
+                }
+                else if ((valueName.front() == '\'' && valueName.back() != '\'') || (valueName.front() != '\'' && valueName.back() == '\''))
+                {
+                    m_logger("Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
+                    printfd(__FILE__, "Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
+                    return {};
+                }
             }
 
             const std::string attrName = keyValue[0];
