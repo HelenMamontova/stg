@@ -47,10 +47,11 @@ int RADIUS::Stop()
 
     m_thread.request_stop();
 
-    const std::lock_guard lock(m_mutex);
-
     if (m_server)
+    {
+        const std::lock_guard lock(m_mutex);
         m_server->stop();
+    }
 
     m_thread.join();
     return 0;
@@ -74,10 +75,11 @@ int RADIUS::Run(std::stop_token token)
 
     try
     {
-        const std::lock_guard lock(m_mutex);
-
         if (!m_server)
+        {
+           const std::lock_guard lock(m_mutex);
            m_server = std::make_unique<Server>(m_ioContext, m_config.GetSecret(), m_config.GetPort(), std::move(token), m_logger, m_users, m_config);
+        }
         m_ioContext.run();
     }
     catch (const std::exception& e)
