@@ -30,7 +30,7 @@ namespace STG
 
             struct ASection
             {
-               struct Data
+               struct DataRule
                 {
                     std::string attrName;
                     uint32_t attrCode;
@@ -38,7 +38,7 @@ namespace STG
                     AttrValue value;
                 };
 
-                using Datas = std::vector<Data>;
+                using Datas = std::vector<DataRule>;
                 Datas match;
                 Datas send;
             };
@@ -53,7 +53,7 @@ namespace STG
             const ASection& getAutz() const { return m_autz; }
 
         private:
-            std::vector<ASection::Data> ParseRules(const std::string& value, const std::string& paramName);
+            std::vector<ASection::DataRule> ParseRules(const std::string& value, const std::string& paramName);
             ASection parseASection(const std::vector<ParamValue>& conf);
 
             std::string m_errorStr;
