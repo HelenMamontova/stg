@@ -62,10 +62,10 @@ std::vector<DataRule> Config::ParseRules(const std::string& value, const std::st
             auto type = AttrValue::Type::PARAM_NAME;
             std::string valueName = keyValue[1];
 
-            size_t pos = valueName.find("\'");
+            size_t pos = valueName.find('\'');
             if (pos != std::string::npos)
             {
-                pos = valueName.find("\'", pos + 2);
+                pos = valueName.find('\'', pos + 2);
                 if (pos == std::string::npos)
                 {
                     m_logger("Error ParseRules: '%s' attribute value name is invalid.\n", valueName.c_str());
