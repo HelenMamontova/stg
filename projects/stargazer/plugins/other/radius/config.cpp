@@ -62,29 +62,17 @@ std::vector<DataRule> Config::ParseRules(const std::string& value, const std::st
             auto type = AttrValue::Type::PARAM_NAME;
             std::string valueName = keyValue[1];
 
-            size_t pos = valueName.find('\'');
-            if (pos != std::string::npos)
+            if (valueName.length() > 1 && valueName.front() == '\'' && valueName.back() == '\'')
             {
-                pos = valueName.find('\'', pos + 2);
-                if (pos == std::string::npos)
-                {
-                    m_logger("Error ParseRules: '%s' attribute value name is invalid.\n", valueName.c_str());
-                    printfd(__FILE__, "Error ParseRules: '%s' attribute value name is invalid.\n", valueName.c_str());
-                    return {};
-                }
-
-                if (valueName.front() == '\'' && valueName.back() == '\'')
-                {
-                    type = AttrValue::Type::VALUE;
-                    valueName.erase(0, 1);
-                    valueName.erase(valueName.length() - 1, 1);
-                }
-                else if ((valueName.front() == '\'' && valueName.back() != '\'') || (valueName.front() != '\'' && valueName.back() == '\''))
-                {
-                    m_logger("Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
-                    printfd(__FILE__, "Error ParseRules: '%s' attribute parameter value is invalid.\n", paramName.c_str());
-                    return {};
-                }
+                type = AttrValue::Type::VALUE;
+                valueName.erase(0, 1);
+                valueName.erase(valueName.length() - 1, 1);
+            }
+            else if ((valueName.length() > 1 || valueName.length() == 1) && (valueName.front() == '\'' || valueName.back() == '\''))
+            {
+                m_logger("Error ParseRules: '%s' attribute parameter value is invalid.\n", valueName.c_str());
+                printfd(__FILE__, "Error ParseRules: '%s' attribute parameter value is invalid.\n", valueName.c_str());
+                return {};
             }
 
             const std::string attrName = keyValue[0];
