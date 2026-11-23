@@ -106,24 +106,22 @@ ASection Config::parseASection(const std::vector<ParamValue>& conf)
 
     if (mit != conf.end())
     {
-        if (!mit->value.empty())
-            res.match = ParseRules(mit->value.at(0), mit->param);
-        else
+        if (mit->value.empty())
         {
             m_errorStr = "Parameter match is empty";
             printfd(__FILE__, "Parameter match is empty\n");
             return {};
         }
+        res.match = ParseRules(mit->value.at(0), mit->param);
     }
 
     const auto sit = std::find(conf.begin(), conf.end(), ParamValue("send", {}));
 
     if (sit != conf.end())
     {
-        if (!sit->value.empty())
-            res.send = ParseRules(sit->value.at(0), sit->param);
-        else
+        if (sit->value.empty())
             return res;
+        res.send = ParseRules(sit->value.at(0), sit->param);
     }
     return res;
 }
