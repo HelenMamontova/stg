@@ -68,7 +68,7 @@ std::vector<DataRule> Config::ParseRules(const std::string& value, const std::st
                 valueName.erase(0, 1);
                 valueName.erase(valueName.length() - 1, 1);
             }
-            else if ((valueName.length() > 1 || valueName.length() == 1) && (valueName.front() == '\'' || valueName.back() == '\''))
+            else if (!valueName.empty() && (valueName.front() == '\'' || valueName.back() == '\''))
             {
                 m_logger("Error ParseRules: '%s' attribute parameter value is invalid.\n", valueName.c_str());
                 printfd(__FILE__, "Error ParseRules: '%s' attribute parameter value is invalid.\n", valueName.c_str());
