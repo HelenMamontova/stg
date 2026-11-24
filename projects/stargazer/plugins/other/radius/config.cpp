@@ -78,14 +78,13 @@ Datas Config::ParseRules(const std::string& value, const std::string& paramName)
             const std::string attrName = keyValue[0];
             uint32_t attrCode;
 
-            if (m_dictionaries.attributeFindByName(attrName))
-                attrCode = m_dictionaries.attributeCode(attrName);
-            else
+            if (!m_dictionaries.attributeFindByName(attrName))
             {
                 m_logger("Error ParseRules: '%s' attribute name is invalid.\n", attrName.c_str());
                 printfd(__FILE__, "Error ParseRules: '%s' attribute name is invalid.\n", attrName.c_str());
                 return {};
             }
+            attrCode = m_dictionaries.attributeCode(attrName);
 
             const auto attrType = m_dictionaries.attributeType(attrCode);
 
