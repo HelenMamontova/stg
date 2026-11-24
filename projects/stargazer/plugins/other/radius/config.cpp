@@ -14,11 +14,11 @@
 using STG::Config;
 using AttrValue = Config::AttrValue;
 using ASection = Config::ASection;
-using DataRule = Config::ASection::DataRule;
+using Datas = ASection::Datas;
 
 namespace
 {
-    std::string ShowRules(const std::vector<DataRule>& rules)
+    std::string ShowRules(const Datas& rules)
     {
         std::string result;
         for (const auto& at : rules)
@@ -35,14 +35,14 @@ namespace
     }
 }
 
-std::vector<DataRule> Config::ParseRules(const std::string& value, const std::string& paramName)
+Datas Config::ParseRules(const std::string& value, const std::string& paramName)
 {
     using tokenizer = boost::tokenizer<boost::char_separator<char>>;
     const boost::char_separator<char> sep(",");
 
     const tokenizer tokens(value, sep);
 
-    std::vector<DataRule> res;
+    Datas res;
 
     try
     {
