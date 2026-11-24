@@ -137,8 +137,8 @@ const User* Server::findUser(const RadProto::Packet& packet)
 
     for (const auto& at : m_config.getAuth().match)
     {
-        const std::string attrName = at.attrName;
-        const uint32_t attrCode = at.attrCode;
+        const auto attrName = at.attrName;
+        const auto attrCode = at.attrCode;
 
         const auto it = std::find_if(packet.attributes().begin(), packet.attributes().end(), [this, attrCode](const auto& atr){return attrCode == atr->code();});
 
