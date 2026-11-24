@@ -165,7 +165,7 @@ int Config::ParseSettings(const ModuleSettings & s)
     pvi = std::find(s.moduleParams.begin(), s.moduleParams.end(), pv);
 
     if (pvi != s.moduleParams.end() && !pvi->value.empty())
-        m_dictionariesPath = pvi->value[0];
+        m_dictionariesPath = pvi->value.front();
 
     try
     {
