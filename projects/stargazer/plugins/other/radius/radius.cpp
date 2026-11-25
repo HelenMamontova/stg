@@ -47,11 +47,15 @@ int RADIUS::Stop()
 
     m_thread.request_stop();
 
-    if (m_server)
+    bool has_server = false;
     {
         const std::lock_guard lock(m_mutex);
-        m_server->stop();
+        has_server = static_cast<bool>(m_server);
     }
+
+    if (has_server)
+        m_server->stop();
+
 
     m_thread.join();
     return 0;
