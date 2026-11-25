@@ -53,7 +53,7 @@ namespace STG
             const ASection& getAutz() const { return m_autz; }
 
         private:
-            std::vector<ASection::DataRule> ParseRules(const std::string& value, const std::string& paramName);
+            ASection::Datas ParseRules(const std::string& value, const std::string& paramName);
             ASection parseASection(const std::vector<ParamValue>& conf);
 
             std::string m_errorStr;
