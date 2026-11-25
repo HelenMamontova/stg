@@ -140,7 +140,7 @@ int Config::ParseSettings(const ModuleSettings & s)
     auto pvi = std::find(s.moduleParams.begin(), s.moduleParams.end(), pv);
     if (pvi != s.moduleParams.end() && !pvi->value.empty())
     {
-        if (ParseIntInRange(pvi->value[0], 2, 65535, &p) != 0)
+        if (ParseIntInRange(pvi->value.front(), 2, 65535, &p) != 0)
         {
             m_errorStr = "Cannot parse parameter \'Port\': " + m_errorStr;
             printfd(__FILE__, "Cannot parse parameter 'Port'\n");
@@ -158,7 +158,7 @@ int Config::ParseSettings(const ModuleSettings & s)
         return -1;
     }
     else
-        m_secret = pvi->value[0];
+        m_secret = pvi->value.front();
 
     pv.param = "Dictionaries";
     pvi = std::find(s.moduleParams.begin(), s.moduleParams.end(), pv);
